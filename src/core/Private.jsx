@@ -1,9 +1,11 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { getCookie, isAuth, signout, updateUser } from '../auth/Helpers';
-import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { getCookie, isAuth, signout, updateUser } from "../auth/Helpers";
+import { useNavigate } from "react-router-dom";
+
+const API = import.meta.env.VITE_API;
 
 const Private = () => {
   const [values, setValues] = useState({
@@ -14,34 +16,34 @@ const Private = () => {
     buttonText: "Submit",
   });
 
-  const token = getCookie('token');
+  const token = getCookie("token");
   const navigate = useNavigate();
   useEffect(() => {
-    loadProfile()
-  }, [])
+    loadProfile();
+  }, []);
 
   const loadProfile = () => {
     axios({
-      method: 'GET',
-      url: `http://localhost:8000/api/user/${isAuth()._id}`,
+      method: "GET",
+      url: `${API}/user/${isAuth()._id}`,
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
-      .then(response => {
-        console.log('PRIVATE PROFILE UPDATE', response);
-        const { role, name, email } = response.data
-        setValues({ ...values, role, name, email })
+      .then((response) => {
+        console.log("PRIVATE PROFILE UPDATE", response);
+        const { role, name, email } = response.data;
+        setValues({ ...values, role, name, email });
       })
-      .catch(error => {
-        console.log('PRIVATE PROFILE UPDATE ERROR', error.response.data.error)
+      .catch((error) => {
+        console.log("PRIVATE PROFILE UPDATE ERROR", error.response.data.error);
         if (error.response.status === 401) {
           signout(() => {
-            navigate('/');
-          })
+            navigate("/");
+          });
         }
-      })
-  }
+      });
+  };
 
   const { role, name, email, password, buttonText } = values;
 
@@ -53,12 +55,10 @@ const Private = () => {
     event.preventDefault();
     setValues({ ...values, buttonText: "Submitting..." });
 
-
-
     try {
       const response = await axios({
-        method: 'PUT',
-        url: `http://localhost:8000/api/user/update`,
+        method: "PUT",
+        url: `${API}/user/update`,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,10 +72,13 @@ const Private = () => {
       console.log("PRIVATE PROFILE UPDATE SUCCESS", response);
       updateUser(response, () => {
         setValues({ ...values, buttonText: "Submitted" });
-        toast.success('Profile updated successfully');
-      })
+        toast.success("Profile updated successfully");
+      });
     } catch (error) {
-      console.error("PRIVATE PROFILE UPDATE ERROR", error.response?.data?.error || error.message);
+      console.error(
+        "PRIVATE PROFILE UPDATE ERROR",
+        error.response?.data?.error || error.message
+      );
       setValues({ ...values, buttonText: "Submit" });
       toast.error(error.response?.data?.error || "Signup failed");
     }
@@ -87,22 +90,44 @@ const Private = () => {
         <form>
           <div className="form-group">
             <label className="text-muted">Role</label>
-            <input type="text" className="form-control" value={role} readOnly disabled />
+            <input
+              type="text"
+              className="form-control"
+              value={role}
+              readOnly
+              disabled
+            />
           </div>
 
           <div className="form-group">
             <label className="text-muted">Name</label>
-            <input onChange={handleChange("name")} value={name} type="text" className="form-control" />
+            <input
+              onChange={handleChange("name")}
+              value={name}
+              type="text"
+              className="form-control"
+            />
           </div>
 
           <div className="form-group">
             <label className="text-muted">Email</label>
-            <input type="email" className="form-control" value={email} readOnly disabled />
+            <input
+              type="email"
+              className="form-control"
+              value={email}
+              readOnly
+              disabled
+            />
           </div>
 
           <div className="form-group">
             <label className="text-muted">Password</label>
-            <input onChange={handleChange("password")} value={password} type="password" className="form-control" />
+            <input
+              onChange={handleChange("password")}
+              value={password}
+              type="password"
+              className="form-control"
+            />
           </div>
 
           <br />
